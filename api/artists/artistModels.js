@@ -4,8 +4,9 @@ const commentModels = require('../comments/commentModels');
 
 const ArtistSchema = new Schema({
     description: String,
-    track: { type: Schema.Types.ObjectId, ref: 'track'},
-    album: { type: Schema.Types.ObjectId, ref: 'album'},
+    name: { type: String, required: true },
+    track: { type: Schema.Types.ObjectId, ref: 'track', default: '' },
+    album: { type: Schema.Types.ObjectId, ref: 'album', default: '' },
     comment: {type: [commentModels], default: []}
 })
 

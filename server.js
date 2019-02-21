@@ -1,9 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const port = 6789;
+const port = 6699;
 const app = express();
-const userRouter = require('./api/users/router')
+const userRouter = require('./api/users/userRouter');
+const trackRouter = require('./api/tracks/trackRouter');
 const linkDataBase = 'mongodb://tieuhoa:tieuhoa123@ds343895.mlab.com:43895/chia-se-nhac-web17';
 // const UserApi = require('./routers/userApi');
 
@@ -21,6 +22,7 @@ app.use(bodyParser.json({ extended: false }));
 // app.use("/api/auth", authRouter);
 // app.use("/api/images", imageRouter);
 app.use("/api/users", userRouter);
+app.use("/api/tracks", trackRouter);
 
 app.listen(port, (err) => {
     if(err) console.log(err);
