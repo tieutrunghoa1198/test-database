@@ -5,6 +5,8 @@ const commentModels = require('../comments/commentModels');
 
 const TrackSchema = new Schema({
     name: { type: String, required: true },
+    trackUrl: { type: Buffer, required: true },
+    contentType: { type: String, required: true },
     artist: { type: Schema.Types.ObjectId, ref: 'artist'}, // user upload with disorder name 
     genre: { type: [String], default: []},
     like: { type: Number, default: 0 },

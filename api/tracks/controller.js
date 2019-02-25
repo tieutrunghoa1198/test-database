@@ -1,20 +1,24 @@
 const TrackModels = require('./trackModels');
 // const authMiddleWare = require('../auth/auth');
 //Controller for track 
-
+const fs = require('fs');
 //Create a track 
-const createTrack = ({ name, artist, createdBy, lyrics, genre, trackFile }) => 
-new Promise((resolve, reject) => {
+const createTrack = ({ name, artist, userId, lyrics, genre, trackFile }) => 
+new Promise((resolve, reject) => {    
     TrackModels
     .create({
-      // track:
+      trackUrl: fs.readFileSync(trackFile.path),
+      contentType: trackFile.mimetype,
       name,
       artist,
-      createdBy,
+      createdBy: userId,
       lyrics,
       genre
     })
-    .then(trackCreated => resolve(trackCreated))
+    .then(trackCreated => {
+      console.log(trackFile.path);
+      
+      resolve(trackCreated)})
     .catch(err => reject(err))
 })
 
@@ -64,7 +68,15 @@ const getAllTracks = (page) =>
         .sort({ createdAt: -1 })
         .skip((page - 1)*10)
         .limit(10)
-        .then(data => resolve(data))
+        .then(data => {
+          resolve(
+            data.map(tracks =>
+              Object.assign({}, tracks._doc, {
+                trackUrl: `/api/tracks/${tracks._id}/data`
+              })
+            )
+          );
+        })
         .catch(err => reject(err))
     })
 
@@ -85,7 +97,11 @@ const getOneTrack = (id) =>
           _id: 0
         })
         .populate('comment.createdBy', 'username')
-        .then(data => resolve(data))
+        .then(data => resolve(
+          data.map(track => Object.assign({}, track._doc, {
+            trackUrl: `/api/tracks/${id}/data`
+          }))
+        ))
         .catch(err => reject(err))
     })
 
@@ -180,6 +196,18 @@ new Promise((resolve, reject) => {
   .catch(err => reject({ status: 500, err }));
 })
 
+//get track data 
+const getTrackData = id => new Promise((resolve, reject) => {
+  TrackModels
+  .findOne({
+    active: true,
+    _id: id
+  })
+  .select('trackUrl contentType')
+  .then(data => resolve(data))
+  .catch(err => reject(err))
+})
+
 module.exports = {
     createTrack,
     getAllTracks,
@@ -191,5 +219,6 @@ module.exports = {
     deleteTrack,
     deleteComment,
     decreaseUnlike,
-    decreaseLike
+    decreaseLike,
+    getTrackData
 }

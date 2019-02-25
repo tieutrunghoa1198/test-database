@@ -47,9 +47,7 @@ router.get("/:artistId", (req, res) => {
 
 
 //delete an artist 
-router.delete("/:id", 
-  authMiddleware.authorize, 
-  (req, res) => {
+router.delete("/:id", authMiddleware.authorize, (req, res) => {
   const {id} = req.params;
   artistController
   .deleteArtist(id)

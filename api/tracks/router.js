@@ -17,6 +17,7 @@ router.get("/", (req, res) => {
     });
   });
   
+  //get a track by id
   router.get("/:trackId", (req, res) => {
     trackController
     .getOneTrack(req.params.trackId)
@@ -27,9 +28,14 @@ router.get("/", (req, res) => {
     })
   });
   
-  router.post("/", authMiddleware.authorize, (req, res) => {
-      // req.body.userId = req.session.userInfo.id;
+  //create a track
+  router.post("/", authMiddleware.authorize, upload.single('trackFile'), (req, res) => {
+      console.log('asd');
+      
+      req.body.userId = req.session.userInfo.id;
       req.body.trackFile = req.file;
+      console.log(req.body.trackFile + ' check file');
+      
       trackController
       .createTrack(req.body)
       .then(result => res.send(result))
@@ -40,6 +46,7 @@ router.get("/", (req, res) => {
     }
   )
   
+  //delete a track
   router.delete("/:id", 
     authMiddleware.authorize, 
     (req, res) => {
@@ -52,6 +59,7 @@ router.get("/", (req, res) => {
     });
   });
   
+  //write a comment
   router.post("/:trackId/comments", 
     authMiddleware.authorize,
     (req, res) => {
@@ -66,6 +74,7 @@ router.get("/", (req, res) => {
     });
   });
   
+  //delete a comment
   router.delete("/:trackId/comments/:commentId", authMiddleware.authorize, (req, res) => {
       trackController
       .deleteComment(
@@ -80,5 +89,20 @@ router.get("/", (req, res) => {
       })
     }
   )
+
+//get track data 
+router.get('/:trackId/data', (req, res) => {
+  console.log(req.params.trackId);
+  trackController
+  .getTrackData(req.params.trackId)
+  .then(data => {
+    res.contentType(data.contentType);
+    res.send(data.trackUrl);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).send(err);
+  })
+})
   
   module.exports = router;
