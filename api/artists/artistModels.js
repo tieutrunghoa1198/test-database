@@ -3,11 +3,14 @@ const Schema = mongoose.Schema;
 const commentModels = require('../comments/commentModels');
 
 const ArtistSchema = new Schema({
-    description: String,
     name: { type: String, required: true },
-    track: { type: Schema.Types.ObjectId, ref: 'track', default: '' },
-    album: { type: Schema.Types.ObjectId, ref: 'album', default: '' },
-    comment: {type: [commentModels], default: []}
-})
+    avatar: { type: String, required: true },
+    description: String,
+    comment: [{type: commentModels, default: []}],
+    active: { type: Boolean, default: true }
+},  {
+        timestamps: {  createdAt: "createAt"}
+    }
+)
 
-module.exports = mongoose.models('artist', ArtistSchema);
+module.exports = mongoose.model('artist', ArtistSchema);

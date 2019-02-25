@@ -13,13 +13,12 @@ const getAllUsers = page =>
         userModels
         .find({ active: true })
         .populate('playlist', {
-          songname: 1,
-          _id: 0
+          songname: 1
         })
         .sort({ createdAt: -1 })
         .skip((page - 1) * 20)
         .limit(20)
-        .select("_id username email playlist")
+        .select("-active -password -__v")
         .then(user => resolve(user))
         .catch(err => reject(err));
 }); 
@@ -68,11 +67,21 @@ const updateEmail = (id, email) =>
     .catch(err => reject(err))
   })
 
+const getUserForAuth = username =>
+new Promise((resolve, reject) => {
+  userModels
+    .findOne({ username })
+    .select("username password _id")
+    .then(user => resolve(user))
+    .catch(err => reject(err));
+});
+
 module.exports = {
     createUser,
     getAllUsers,
     getOneUser,
     deleteUser,
     updatePassWord,
-    updateEmail
+    updateEmail,
+    getUserForAuth
 }

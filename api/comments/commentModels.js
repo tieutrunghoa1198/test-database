@@ -8,4 +8,4 @@ const CommentModels = new Schema({
     timestamps: { createdAt: 'createdAt' }
 })
 
-module.exports = CommentModels;
+module.exports = CommentModels; 

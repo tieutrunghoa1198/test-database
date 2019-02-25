@@ -20,7 +20,7 @@ router.post('/', (req, res) => {
 })
 
 //Read all track
-router.get("/", (req, res) => {
+router.get('/', (req, res) => {
     trackController
     .getAllTracks(req.body.page)
     .then(data => res.send(data))
@@ -28,7 +28,6 @@ router.get("/", (req, res) => {
         console.log(err);
         res.status(500).send(err);
     })
-
   });
 
 module.exports = router;
