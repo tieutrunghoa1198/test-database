@@ -1,12 +1,19 @@
 const TrackModels = require('./trackModels');
-
+// const authMiddleWare = require('../auth/auth');
 //Controller for track 
 
 //Create a track 
-const createTrack = ({ songname, lyrics, genre }) => 
+const createTrack = ({ name, artist, createdBy, lyrics, genre, trackFile }) => 
 new Promise((resolve, reject) => {
     TrackModels
-    .create({ songname, lyrics, genre })
+    .create({
+      // track:
+      name,
+      artist,
+      createdBy,
+      lyrics,
+      genre
+    })
     .then(trackCreated => resolve(trackCreated))
     .catch(err => reject(err))
 })
@@ -18,7 +25,7 @@ const addComment = (trackID, {user, content}) => new Promise((resolve, reject) =
         _id: trackID
     },
     {
-        $push: { comment: { createdBy: user, content }}
+        $push: { comment: { createdBy: user, content: content }}
     })
     .then(data => resolve(data))
     .catch(err => reject(err))
@@ -45,9 +52,15 @@ const getAllTracks = (page) =>
     new Promise((resolve, reject) => {
         TrackModels
         .find({ active: true })
-        // .populate('artist')
-        // .populate('album', 'name')
-        // .populate('comment.createdBy', 'username avatar')
+        .populate('artist', {
+          name: 1,
+          _id: 0
+        })
+        .populate('createdBy', {
+          username: 1,
+          _id: 0
+        })
+        .populate('comment.createdBy', 'username')
         .sort({ createdAt: -1 })
         .skip((page - 1)*10)
         .limit(10)
@@ -63,6 +76,15 @@ const getOneTrack = (id) =>
             active: true,
             _id: id
         })
+        .populate('artist', {
+          name: 1,
+          _id: 0
+        })
+        .populate('createdBy', {
+          username: 1,
+          _id: 0
+        })
+        .populate('comment.createdBy', 'username')
         .then(data => resolve(data))
         .catch(err => reject(err))
     })

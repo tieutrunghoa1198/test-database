@@ -9,7 +9,7 @@ const authMiddleware = require("../auth/auth");
 //get all tracks 
 router.get("/", (req, res) => {
     trackController
-    .getAllTrack(req.query.page || 1)
+    .getAllTracks(req.query.page || 1)
     .then(tracks => res.send(tracks))
     .catch(err => {
         console.error(err);
@@ -19,22 +19,17 @@ router.get("/", (req, res) => {
   
   router.get("/:trackId", (req, res) => {
     trackController
-    .getTrack(req.params.trackId)
+    .getOneTrack(req.params.trackId)
     .then(track => res.send(track))
     .catch(err => {
       console.error(err);
       res.status(500).send(err);
-    });
-  })
+    })
+  });
   
-  router.post(
-    "/",
-    // authMiddleware.authorize,
-    upload.single("track"),
-    (req, res) => {
+  router.post("/", authMiddleware.authorize, (req, res) => {
       // req.body.userId = req.session.userInfo.id;
       req.body.trackFile = req.file;
-  
       trackController
       .createTrack(req.body)
       .then(result => res.send(result))
@@ -46,7 +41,7 @@ router.get("/", (req, res) => {
   )
   
   router.delete("/:id", 
-    // authMiddleware.authorize, 
+    authMiddleware.authorize, 
     (req, res) => {
     trackController
     .deleteTrack(req.params.id, req.session.userInfo.id)
@@ -58,7 +53,7 @@ router.get("/", (req, res) => {
   });
   
   router.post("/:trackId/comments", 
-    // authMiddleware.authorize,
+    authMiddleware.authorize,
     (req, res) => {
     req.body.userId = req.session.userInfo.id;
   
@@ -71,10 +66,7 @@ router.get("/", (req, res) => {
     });
   });
   
-  router.delete(
-    "/:trackId/comments/:commentId",
-    // authMiddleware.authorize,
-    (req, res) => {
+  router.delete("/:trackId/comments/:commentId", authMiddleware.authorize, (req, res) => {
       trackController
       .deleteComment(
         req.params.trackId,

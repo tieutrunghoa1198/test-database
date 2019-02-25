@@ -19,10 +19,13 @@ const getAllArtist = page =>
     new Promise((resolve, reject) => {
         artistModel
         .find({ active: true })
+        .populate('comment.createdBy',{
+          username: 1
+        })
         .sort({ createAt: -1 })
         .skip((page -1) * 20)
         .limit(20)
-        .select("-__v -createdAt -updatedAt")
+        .select("-__v -createAt -updatedAt")
         .then(data => resolve(data))
         .catch(err => reject(err));
     })
