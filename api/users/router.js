@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('./controller');
-
-router.use((req, res, next) => {
-    next();
-})
+const authMiddleware = require('../auth/auth');
 
 // CRUD , Create, Read, Update, Delete 
+router.use("/:id/*", authMiddleware.authorize, (req, res, next) => {
+  if (req.session.userInfo.id != req.params.id) {
+    res.status(401).send("Unauthorized!");
+  } else next();
+});
 
 //Create a user 
 router.post('/', (req, res) => {
@@ -80,6 +82,19 @@ router.delete('/:userId', (req, res) => {
   })
 });
 
+//update avatar 
+router.put('/:userId/avatar', (req, res) => {
+  userController
+  .updateAva(req.params.userId)
+  .then(data => {
+    res.contentType(data.contentType);
+    res.send(data.avatar);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).send(err);
+  })
+})
 
 
 module.exports = router;

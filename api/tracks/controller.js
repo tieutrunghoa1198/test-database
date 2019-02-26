@@ -117,22 +117,6 @@ const updateLyrics = (lyrics, id) => new Promise((resolve, reject) => {
     .catch(err => reject(err))
 })
 
-//plus 1 unlike
-const increaseUnlike = trackId =>
-  new Promise((resolve, reject) => {
-    trackModel
-      .update(
-        {
-          _id: trackId
-        },
-        {
-          $inc: { unlike: 1 }
-        }
-      )
-      .then(data => resolve(data))
-      .catch(err => reject(err));
-  });
-
 //plus 1 like 
 const increaseLike = trackId =>
 new Promise((resolve, reject) => {
@@ -148,22 +132,6 @@ new Promise((resolve, reject) => {
     .then(data => resolve(data))
     .catch(err => reject(err));
 });
-
-//minus 1 unlike
-const decreaseUnlike = trackId =>
-  new Promise((resolve, reject) => {
-    trackModel
-      .update(
-        {
-          _id: trackId
-        },
-        {
-          $inc: { unlike: -1 }
-        }
-      )
-      .then(data => resolve(data))
-      .catch(err => reject(err));
-  });
 
 //minus 1 like 
 const decreaseLike = trackId =>
@@ -212,13 +180,11 @@ module.exports = {
     createTrack,
     getAllTracks,
     getOneTrack,
+    getTrackData,
     updateLyrics,
     addComment,
-    increaseUnlike,
-    increaseLike,
-    deleteTrack,
     deleteComment,
-    decreaseUnlike,
-    decreaseLike,
-    getTrackData
+    deleteTrack,
+    increaseLike,
+    decreaseLike
 }

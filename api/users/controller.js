@@ -1,9 +1,16 @@
 const userModels = require('./userModels');
-
-const createUser = ({ username, email, password, playlist }) =>
+const fs = require('fs');
+const createUser = ({ username, email, password, playlist, avaFile }) =>
     new Promise(( resolve, reject ) => {
         userModels
-        .create({username, email, password, playlist})
+        .create({
+          avatar: fs.readFileSync(avaFile.path),
+          contentType: avaFile.mimetype,
+          username,
+          email,
+          password,
+          playlist
+        })
         .then(user => resolve(user))
         .catch(err => reject(err))
     });
@@ -19,7 +26,11 @@ const getAllUsers = page =>
         .skip((page - 1) * 20)
         .limit(20)
         .select("-active -password -__v")
-        .then(user => resolve(user))
+        .then(user => {
+          resolve(user.map( Object.assign({}, user._doc, {
+            avatar: `/api/users/${user._id}/data`
+          })))
+        })
         .catch(err => reject(err));
 }); 
 
@@ -31,7 +42,11 @@ const getOneUser = id =>
       _id: id
     })
     .select('_id username email')
-    .then(data => resolve(data))
+    .then(user => {
+      resolve(user.map( Object.assign({}, user._doc, {
+        avatar: `/api/users/${user._id}/data`
+      })))
+    })
     .catch(err => reject(err))
   })
 
@@ -76,6 +91,30 @@ new Promise((resolve, reject) => {
     .catch(err => reject(err));
 });
 
+const updateAva = (avaFile, id) => 
+new Promise((resolve, reject) => {
+  userModels
+  .updateOne({
+    active: true,
+    _id: id
+  },
+  {
+    avatar: fs.readFileSync(avaFile.path),
+    contentType: avaFile.mimetype
+  })
+  .then(data => resolve(data))
+  .catch(err => reject(err))
+})
+
+const getUserAva = (id) => 
+new Promise((resolve, reject) => {
+  userModels
+  .findOne(id)
+  .select('avatar contentType')
+  .then(data => resolve(data))
+  .catch(err => reject(err))
+})
+
 module.exports = {
     createUser,
     getAllUsers,
@@ -83,5 +122,7 @@ module.exports = {
     deleteUser,
     updatePassWord,
     updateEmail,
-    getUserForAuth
+    getUserForAuth,
+    updateAva,
+    getUserAva
 }
