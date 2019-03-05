@@ -4,7 +4,8 @@ const commentModels = require('../comments/commentModels');
 
 const ArtistSchema = new Schema({
     name: { type: String, required: true },
-    avatar: { type: String, required: true },
+    avatar: { type: Buffer, required: true },
+    contentType: { type: String },
     description: String,
     comment: [{type: commentModels, default: []}],
     active: { type: Boolean, default: true }

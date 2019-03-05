@@ -3,7 +3,7 @@ const TrackModels = require('./trackModels');
 //Controller for track 
 const fs = require('fs');
 //Create a track 
-const createTrack = ({ name, artist, userId, lyrics, genre, trackFile }) => 
+const createTrack = ({ name, artist, userId, lyrics, genre, trackFile, avaFile }) => 
 new Promise((resolve, reject) => {    
     TrackModels
     .create({
@@ -17,7 +17,6 @@ new Promise((resolve, reject) => {
     })
     .then(trackCreated => {
       console.log(trackFile.path);
-      
       resolve(trackCreated)})
     .catch(err => reject(err))
 })
@@ -58,7 +57,9 @@ const getAllTracks = (page) =>
         .find({ active: true })
         .populate('artist', {
           name: 1,
-          _id: 0
+          _id: 0,
+          avatar: 1,
+          contentType: 1
         })
         .populate('createdBy', {
           username: 1,
@@ -72,7 +73,10 @@ const getAllTracks = (page) =>
           resolve(
             data.map(tracks =>
               Object.assign({}, tracks._doc, {
-                trackUrl: `/api/tracks/${tracks._id}/data`
+                trackUrl: `/api/tracks/${tracks._id}/data`,
+                artist: { 
+                  avatar: `/api/tracks/${tracks._id}/avatar` 
+                }
               })
             )
           );
@@ -99,7 +103,8 @@ const getOneTrack = (id) =>
         .populate('comment.createdBy', 'username')
         .then(data => resolve(
           data.map(track => Object.assign({}, track._doc, {
-            trackUrl: `/api/tracks/${id}/data`
+            trackUrl: `/api/tracks/${tracks._id}/data`,
+            artist: { avatar: `/api/tracks/${tracks._id}/avatar` }
           }))
         ))
         .catch(err => reject(err))
@@ -176,6 +181,22 @@ const getTrackData = id => new Promise((resolve, reject) => {
   .catch(err => reject(err))
 })
 
+//get ava data 
+const getAvaData = id => new Promise((resolve, reject) => {
+  TrackModels
+  .findOne({
+    active: true,
+    _id: id
+  })
+  .populate('artist', {
+    avatar: 1,
+    contentType: 1
+  })
+  .select('artist')
+  .then(data => resolve(data))
+  .catch(err => reject(err))
+})
+
 module.exports = {
     createTrack,
     getAllTracks,
@@ -186,5 +207,6 @@ module.exports = {
     deleteComment,
     deleteTrack,
     increaseLike,
-    decreaseLike
+    decreaseLike,
+    getAvaData
 }

@@ -30,12 +30,13 @@ router.get("/:trackId", (req, res) => {
 
 //create a track
 router.post("/", authMiddleware.authorize, upload.single('trackFile'), (req, res) => {
-    console.log('asd');
-    
+    console.log(req.files);
+    console.log(req.body);
+    // let file = req.files
     req.body.userId = req.session.userInfo.id;
     req.body.trackFile = req.file;
+    // req.body.avaFile = file[1];
     console.log(req.body.trackFile + ' check file');
-    
     trackController
     .createTrack(req.body)
     .then(result => res.send(result))
@@ -98,6 +99,23 @@ router.get('/:trackId/data', (req, res) => {
   .then(data => {
     res.contentType(data.contentType);
     res.send(data.trackUrl);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).send(err);
+  })
+})
+
+//get artist's avatar inside track data 
+router.get('/:trackId/avatar', (req, res) => {
+  console.log(req.params.trackId);
+  trackController
+  .getAvaData(req.params.trackId)
+  .then(data => {
+    console.log(data);
+    
+    res.contentType(data.artist.contentType);
+    res.send(data.artist.avatar);
   })
   .catch(err => {
     console.log(err);

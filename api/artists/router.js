@@ -4,16 +4,16 @@ const router = express.Router();
 const artistController = require("./controller");
 const authMiddleware = require("../auth/auth");
 
+const multer = require("multer");
+const upload = multer({ dest: "artist-avatar/" });
 //CRUD ---- Create, Read, Update, Delete 
 
 //create an artist 
-router.post("/",
-  authMiddleware.authorize,
-  // upload.single("artist"),
-  (req, res) => {
-    let {name, avatar, description} = req.body;
+router.post("/", authMiddleware.authorize, upload.single("avatarFile"), (req, res) => {
+    // let {name, avatar, description} = req.body;
+    req.body.avatarFile = req.file;
     artistController
-    .createArtist({name, avatar, description})
+    .createArtist(req.body)
     .then(trackCreated => res.send(trackCreated))
     .catch(err => {
       console.error(err)
@@ -32,7 +32,7 @@ router.get("/", (req, res) => {
         res.status(500).send(err);
     });
   });
-  
+
 //get one artist 
 router.get("/:artistId", (req, res) => {
   const {artistId} = req.params;
@@ -105,4 +105,18 @@ router.put('/:artistId', (req, res) => {
   })
 })
 
+//get track data 
+router.get('/:artist/avatar', (req, res) => {
+  console.log(req.params.trackId);
+  trackController
+  .getTrackData(req.params.trackId)
+  .then(data => {
+    res.contentType(data.contentType);
+    res.send(data.avatar);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).send(err);
+  })
+})
 module.exports = router;

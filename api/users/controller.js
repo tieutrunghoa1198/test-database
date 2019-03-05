@@ -1,37 +1,33 @@
 const userModels = require('./userModels');
 const fs = require('fs');
-const createUser = ({ username, email, password, playlist, avaFile }) =>
+const createUser = ({ username, password }) =>
     new Promise(( resolve, reject ) => {
         userModels
         .create({
-          avatar: fs.readFileSync(avaFile.path),
-          contentType: avaFile.mimetype,
           username,
-          email,
           password,
-          playlist
         })
         .then(user => resolve(user))
         .catch(err => reject(err))
     });
     
 const getAllUsers = page =>
-    new Promise((resolve, reject) => {
-        userModels
-        .find({ active: true })
-        .populate('playlist', {
-          songname: 1
-        })
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * 20)
-        .limit(20)
-        .select("-active -password -__v")
-        .then(user => {
-          resolve(user.map( Object.assign({}, user._doc, {
-            avatar: `/api/users/${user._id}/data`
-          })))
-        })
-        .catch(err => reject(err));
+new Promise((resolve, reject) => {
+    userModels
+    .find({ active: true })
+    .populate('playlist', {
+      songname: 1
+    })
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * 20)
+    .limit(20)
+    .select("-active -password -__v")
+    .then(user => {
+      resolve(user.map( Object.assign({}, user._doc, {
+        avatar: `/api/users/${user._id}/data`
+      })))
+    })
+    .catch(err => reject(err));
 }); 
 
 const getOneUser = id => 

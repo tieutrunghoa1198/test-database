@@ -3,6 +3,8 @@ const router = express.Router();
 const userController = require('./controller');
 const authMiddleware = require('../auth/auth');
 
+const multer = require("multer");
+const upload = multer({ dest: "user-avatar/" });
 // CRUD , Create, Read, Update, Delete 
 router.use("/:id/*", authMiddleware.authorize, (req, res, next) => {
   if (req.session.userInfo.id != req.params.id) {

@@ -1,13 +1,14 @@
 const artistModel = require('./artistModels');
-// const fs = require('fs');
+const fs = require('fs');
 
 //create an artist 
-const createArtist = ({ name, avatar, description}) =>
+const createArtist = ({ name, description, avatarFile}) =>
     new Promise ((resolve, reject) => {
         artistModel
         .create({
+            avatar: fs.readFileSync(avatarFile.path),
+            contentType: avatarFile.mimetype,
             name,
-            avatar,
             description
         })
         .then(data => resolve(data))
@@ -26,7 +27,12 @@ const getAllArtist = page =>
         .skip((page -1) * 20)
         .limit(20)
         .select("-__v -createAt -updatedAt")
-        .then(data => resolve(data))
+        .then(data => 
+          resolve( 
+            data.map( artists =>  
+              Object.assign({}, artists._doc, {
+                avatar: `/api/artists/${artists._id}/avatar`
+        }))))
         .catch(err => reject(err));
     })
 
