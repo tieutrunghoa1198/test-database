@@ -55,17 +55,7 @@ const getAllTracks = (page) =>
     new Promise((resolve, reject) => {
         TrackModels
         .find({ active: true })
-        .populate('artist', {
-          name: 1,
-          _id: 0,
-          avatar: 1,
-          contentType: 1
-        })
-        .populate('createdBy', {
-          username: 1,
-          _id: 0
-        })
-        .populate('comment.createdBy', 'username')
+        .select('name artist')
         .sort({ createdAt: -1 })
         .skip((page - 1)*10)
         .limit(10)
@@ -101,12 +91,15 @@ const getOneTrack = (id) =>
           _id: 0
         })
         .populate('comment.createdBy', 'username')
-        .then(data => resolve(
-          data.map(track => Object.assign({}, track._doc, {
-            trackUrl: `/api/tracks/${tracks._id}/data`,
-            artist: { avatar: `/api/tracks/${tracks._id}/avatar` }
-          }))
-        ))
+        .select('-createdAt -updateAt -contentType ')
+        .then(data => {
+          resolve(
+            Object.assign({}, data._doc, {
+              trackUrl: `/api/tracks/${id}/data`,
+              artist: { avatar: `/api/tracks/${id}/avatar` }
+            })
+          );
+        })
         .catch(err => reject(err))
     })
 
@@ -197,6 +190,14 @@ const getAvaData = id => new Promise((resolve, reject) => {
   .catch(err => reject(err))
 })
 
+const search = searchString => new Promise((resolve, reject) => {
+  let string = searchString.toLowerCase();
+  TrackModels
+  .find({
+    name: string,
+    active: true
+  })
+})
 module.exports = {
     createTrack,
     getAllTracks,

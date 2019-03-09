@@ -17,6 +17,10 @@ router.get("/", (req, res) => {
     });
   });
 
+//search all tracks
+router.get('/query', (req,res) => {
+  res.send('asd check back end');
+} )
 //get a track by id
 router.get("/:trackId", (req, res) => {
   trackController
