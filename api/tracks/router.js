@@ -10,7 +10,7 @@ const authMiddleware = require("../auth/auth");
 router.get("/", (req, res) => {
     trackController
     .getAllTracks(req.query.page || 1)
-    .then(tracks => res.send(tracks))
+    .then(tracks => res.send({data: tracks}))
     .catch(err => {
         console.error(err);
         res.status(500).send(err);
@@ -21,6 +21,7 @@ router.get("/", (req, res) => {
 router.get('/query', (req,res) => {
   res.send('asd check back end');
 } )
+
 //get a track by id
 router.get("/:trackId", (req, res) => {
   trackController
@@ -33,14 +34,9 @@ router.get("/:trackId", (req, res) => {
 });
 
 //create a track
-router.post("/", authMiddleware.authorize, upload.single('trackFile'), (req, res) => {
+router.post("/", (req, res) => {
     console.log(req.files);
     console.log(req.body);
-    // let file = req.files
-    req.body.userId = req.session.userInfo.id;
-    req.body.trackFile = req.file;
-    // req.body.avaFile = file[1];
-    console.log(req.body.trackFile + ' check file');
     trackController
     .createTrack(req.body)
     .then(result => res.send(result))

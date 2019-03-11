@@ -1,23 +1,17 @@
 const TrackModels = require('./trackModels');
-// const authMiddleWare = require('../auth/auth');
-//Controller for track 
-const fs = require('fs');
+
 //Create a track 
-const createTrack = ({ name, artist, userId, lyrics, genre, trackFile, avaFile }) => 
+const createTrack = ({ name, artist, trackUrl}) => 
 new Promise((resolve, reject) => {    
     TrackModels
     .create({
-      trackUrl: fs.readFileSync(trackFile.path),
-      contentType: trackFile.mimetype,
-      name,
-      artist,
-      createdBy: userId,
-      lyrics,
-      genre
+      name, 
+      artist, 
+      trackUrl
     })
     .then(trackCreated => {
-      console.log(trackFile.path);
-      resolve(trackCreated)})
+      resolve(trackCreated)
+    })
     .catch(err => reject(err))
 })
 
@@ -55,21 +49,16 @@ const getAllTracks = (page) =>
     new Promise((resolve, reject) => {
         TrackModels
         .find({ active: true })
-        .select('name artist')
+        .populate('artist', {
+          name: 1,
+          avatarUrl: 1
+        })
+        .select('name artist trackUrl')
         .sort({ createdAt: -1 })
         .skip((page - 1)*10)
         .limit(10)
         .then(data => {
-          resolve(
-            data.map(tracks =>
-              Object.assign({}, tracks._doc, {
-                trackUrl: `/api/tracks/${tracks._id}/data`,
-                artist: { 
-                  avatar: `/api/tracks/${tracks._id}/avatar` 
-                }
-              })
-            )
-          );
+          resolve(data)
         })
         .catch(err => reject(err))
     })
@@ -82,23 +71,10 @@ const getOneTrack = (id) =>
             active: true,
             _id: id
         })
-        .populate('artist', {
-          name: 1,
-          _id: 0
-        })
-        .populate('createdBy', {
-          username: 1,
-          _id: 0
-        })
-        .populate('comment.createdBy', 'username')
-        .select('-createdAt -updateAt -contentType ')
-        .then(data => {
-          resolve(
-            Object.assign({}, data._doc, {
-              trackUrl: `/api/tracks/${id}/data`,
-              artist: { avatar: `/api/tracks/${id}/avatar` }
-            })
-          );
+        .select('name trackUrl artist')
+        .then(data => { resolve(
+          resolve(data)
+        );
         })
         .catch(err => reject(err))
     })
@@ -162,18 +138,6 @@ new Promise((resolve, reject) => {
   .catch(err => reject({ status: 500, err }));
 })
 
-//get track data 
-const getTrackData = id => new Promise((resolve, reject) => {
-  TrackModels
-  .findOne({
-    active: true,
-    _id: id
-  })
-  .select('trackUrl contentType')
-  .then(data => resolve(data))
-  .catch(err => reject(err))
-})
-
 //get ava data 
 const getAvaData = id => new Promise((resolve, reject) => {
   TrackModels
@@ -190,19 +154,10 @@ const getAvaData = id => new Promise((resolve, reject) => {
   .catch(err => reject(err))
 })
 
-const search = searchString => new Promise((resolve, reject) => {
-  let string = searchString.toLowerCase();
-  TrackModels
-  .find({
-    name: string,
-    active: true
-  })
-})
 module.exports = {
     createTrack,
     getAllTracks,
     getOneTrack,
-    getTrackData,
     updateLyrics,
     addComment,
     deleteComment,

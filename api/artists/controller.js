@@ -2,14 +2,12 @@ const artistModel = require('./artistModels');
 const fs = require('fs');
 
 //create an artist 
-const createArtist = ({ name, description, avatarFile}) =>
+const createArtist = ({ name, avatarUrl }) =>
     new Promise ((resolve, reject) => {
         artistModel
         .create({
-            avatar: fs.readFileSync(avatarFile.path),
-            contentType: avatarFile.mimetype,
-            name,
-            description
+            name, 
+            avatarUrl
         })
         .then(data => resolve(data))
         .catch(err => reject(err));
@@ -20,19 +18,16 @@ const getAllArtist = page =>
     new Promise((resolve, reject) => {
         artistModel
         .find({ active: true })
-        .populate('comment.createdBy',{
-          username: 1
-        })
+        // .populate('comment.createdBy',{
+        //   username: 1
+        // })
         .sort({ createAt: -1 })
         .skip((page -1) * 20)
         .limit(20)
-        .select("-__v -createAt -updatedAt")
+        .select("name avatarUrl")
         .then(data => 
-          resolve( 
-            data.map( artists =>  
-              Object.assign({}, artists._doc, {
-                avatar: `/api/artists/${artists._id}/avatar`
-        }))))
+          resolve(data)
+        )
         .catch(err => reject(err));
     })
 

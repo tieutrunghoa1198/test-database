@@ -9,9 +9,10 @@ const upload = multer({ dest: "artist-avatar/" });
 //CRUD ---- Create, Read, Update, Delete 
 
 //create an artist 
-router.post("/", authMiddleware.authorize, upload.single("avatarFile"), (req, res) => {
+router.post("/", (req, res) => {
     // let {name, avatar, description} = req.body;
-    req.body.avatarFile = req.file;
+    console.log(JSON.stringify(req.body));
+    
     artistController
     .createArtist(req.body)
     .then(trackCreated => res.send(trackCreated))

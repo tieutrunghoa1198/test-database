@@ -11,7 +11,7 @@ const UserSchema = new Schema({
     password: { type: String, required: true},
     avatar: { type: Buffer, required: false},
     contenType: { type: String, required: false },
-    email: { type: String, required: true}, 
+    email: { type: String, required: false}, 
     playlist: [{ type: playlistShcema, default: [] }],
     active: { type: Boolean, default: true } 
 })
